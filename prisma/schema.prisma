@@ -1,0 +1,217 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model brands {
+  id          String @id @db.VarChar(255)
+  name        String @db.VarChar(255)
+  logo        String @db.VarChar(255)
+  image_cover String @db.VarChar(255)
+  description String @db.Text
+  cars        cars[]
+}
+
+model cars {
+  id                  String                @id @db.VarChar(255)
+  name                String                @db.VarChar(255)
+  description         String                @db.VarChar(255)
+  daily_rate          Decimal               @db.Decimal(10, 0)
+  available           Boolean               @default(true)
+  license_plate       String                @db.VarChar(255)
+  fine_amount         Decimal               @db.Decimal(10, 0)
+  brand               String                @db.VarChar(255)
+  category_id         String?               @db.VarChar(255)
+  created_at          DateTime              @default(now()) @db.Timestamp(0)
+  id_brand            String?               @db.VarChar(255)
+  year                String                @db.VarChar(255)
+  transmission        String                @db.VarChar(255)
+  fuel                String                @db.VarChar(255)
+  direction           String                @db.VarChar(255)
+  engine_power        String                @db.VarChar(255)
+  car_type            String                @db.VarChar(255)
+  number_doors        String                @db.VarChar(255)
+  end_plate           String?               @db.VarChar(255)
+  color               String                @db.VarChar(255)
+  only_owner          String                @db.VarChar(255)
+  car_value           String                @db.VarChar(255)
+  user_id             String?               @db.VarChar(255)
+  likes               Decimal?              @default(0) @db.Decimal(10, 0)
+  brands              brands?               @relation(fields: [id_brand], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKBransCars")
+  users               users?                @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKCarsUser")
+  categories          categories?           @relation(fields: [category_id], references: [id], onUpdate: SetNull, map: "FKCategoryCar")
+  cars_image          cars_image[]
+  rentals             rentals[]
+  specifications_cars specifications_cars[] @ignore
+
+  @@index([id_brand], map: "FKBransCars")
+  @@index([user_id], map: "FKCarsUser")
+  @@index([category_id], map: "FKCategoryCar")
+}
+
+model cars_image {
+  id         String   @id @db.VarChar(255)
+  car_id     String   @db.VarChar(255)
+  image_name String   @db.VarChar(255)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  cars       cars     @relation(fields: [car_id], references: [id], onUpdate: Restrict, map: "FKCarImage")
+
+  @@index([car_id], map: "FKCarImage")
+}
+
+model categories {
+  id          String   @id @db.VarChar(255)
+  name        String   @db.VarChar(255)
+  description String   @db.VarChar(255)
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  cars        cars[]
+}
+
+model clubs {
+  id          String   @id @db.VarChar(255)
+  name        String   @db.VarChar(255)
+  description String   @db.Text
+  image_cover String   @db.VarChar(255)
+  rules       String   @db.Text
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model events {
+  id          String   @id @db.VarChar(255)
+  name        String   @db.VarChar(255)
+  date_event  DateTime @default(now()) @db.Timestamp(0)
+  description String   @db.VarChar(255)
+  user_id     String?  @db.VarChar(255)
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model likes {
+  id         String   @id @db.VarChar(255)
+  car_id     String   @db.VarChar(255)
+  user_id    String   @db.VarChar(255)
+  start_date DateTime @default(now()) @db.Timestamp(0)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  users      users    @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "FKUserLikes")
+
+  @@index([car_id], map: "FKCarLikes")
+  @@index([user_id], map: "FKUserLikes")
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement())
+  timestamp BigInt
+  name      String @db.VarChar(255)
+}
+
+model post_photos {
+  id         String   @id @db.VarChar(255)
+  name       String   @db.VarChar(255)
+  post_id    String   @db.VarChar(255)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  posts      posts    @relation(fields: [post_id], references: [id], onUpdate: Restrict, map: "FKPostsPhotos")
+
+  @@index([post_id], map: "FKPostsPhotos")
+}
+
+model posts {
+  id                 String        @id @db.VarChar(255)
+  title              String        @db.VarChar(255)
+  description        String        @db.Text
+  linked_to_the_club String        @db.VarChar(255)
+  user_id            String        @db.VarChar(255)
+  likes_number       Int
+  shares_number      Int
+  created_at         DateTime      @default(now()) @db.Timestamp(0)
+  post_photos        post_photos[]
+  users              users         @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "FKUser")
+  time_line          time_line[]
+
+  @@index([user_id], map: "FKUser")
+}
+
+model rentals {
+  id                   String    @id @db.VarChar(255)
+  car_id               String    @db.VarChar(255)
+  user_id              String    @db.VarChar(255)
+  start_date           DateTime  @default(now()) @db.Timestamp(0)
+  end_date             DateTime? @db.Timestamp(0)
+  expected_return_date DateTime? @db.Timestamp(0)
+  total                Decimal   @db.Decimal(10, 0)
+  created_at           DateTime? @db.Timestamp(0)
+  updated_at           DateTime  @default(now()) @db.Timestamp(0)
+  cars                 cars      @relation(fields: [car_id], references: [id], onUpdate: Restrict, map: "FKCarRental")
+  users                users     @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "FKUserRental")
+
+  @@index([car_id], map: "FKCarRental")
+  @@index([user_id], map: "FKUserRental")
+}
+
+model specifications {
+  id                  String                @id @db.VarChar(255)
+  name                String                @db.VarChar(255)
+  description         String                @db.VarChar(255)
+  created_at          DateTime              @default(now()) @db.Timestamp(0)
+  specifications_cars specifications_cars[] @ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model specifications_cars {
+  car_id           String         @db.VarChar(255)
+  specification_id String         @db.VarChar(255)
+  created_at       DateTime       @default(now()) @db.Timestamp(0)
+  cars             cars           @relation(fields: [car_id], references: [id], onUpdate: Restrict, map: "FKCarSpecification")
+  specifications   specifications @relation(fields: [specification_id], references: [id], onUpdate: Restrict, map: "FKSpecificationCar")
+
+  @@index([car_id], map: "FKCarSpecification")
+  @@index([specification_id], map: "FKSpecificationCar")
+  @@ignore
+}
+
+model time_line {
+  id          String   @id @db.VarChar(255)
+  title       String   @db.VarChar(255)
+  description String   @db.VarChar(255)
+  post_id     String   @db.VarChar(255)
+  car_id      String   @db.VarChar(255)
+  club_id     String   @db.VarChar(255)
+  store_id    String   @db.VarChar(255)
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  posts       posts    @relation(fields: [post_id], references: [id], onUpdate: Restrict, map: "FKPostTimeLine")
+
+  @@index([post_id], map: "FKPostTimeLine")
+}
+
+model users {
+  id             String         @id @db.VarChar(255)
+  name           String         @db.VarChar(255)
+  password       String         @db.VarChar(255)
+  email          String         @db.VarChar(255)
+  driver_license String         @db.VarChar(255)
+  isAdmin        Boolean        @default(false)
+  created_at     DateTime       @default(now()) @db.Timestamp(0)
+  avatar         String?        @db.VarChar(255)
+  image_cover    String?        @db.VarChar(255)
+  phone_number   String?        @db.VarChar(255)
+  isActive       Boolean?
+  code_active    String?        @db.VarChar(255)
+  cars           cars[]
+  likes          likes[]
+  posts          posts[]
+  rentals        rentals[]
+  users_tokens   users_tokens[]
+}
+
+model users_tokens {
+  id            String   @id @db.VarChar(255)
+  refresh_token String   @db.VarChar(255)
+  user_id       String   @db.VarChar(255)
+  expires_date  DateTime @default(now()) @db.Timestamp(0)
+  created_at    DateTime @default(now()) @db.Timestamp(0)
+  users         users    @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "FKUserToken")
+
+  @@index([user_id], map: "FKUserToken")
+}
