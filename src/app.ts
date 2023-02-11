@@ -1,12 +1,7 @@
 import express, {Request, Response} from 'express';
-
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient()
+import { router } from './routes';
 const app = express()
 
-app.get('/', async (req:Request, res:Response) => {
-    const brands = await prisma.cars.findMany()
-    res.send(brands);
-})
+app.use(router);
 
 export { app }
