@@ -7,9 +7,10 @@ import { prisma } from '../../../prisma/prisma'
     async execute():Promise<cars[]>{
         
         const cars = await prisma.cars.findMany();
-        if(cars.length != 1){
+
+        if(!cars){
             
-             new AppError("User already exists")
+            throw new AppError("User already exists")
         }
 
         return cars;
