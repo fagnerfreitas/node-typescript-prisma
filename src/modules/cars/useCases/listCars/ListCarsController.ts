@@ -5,7 +5,7 @@ class ListCarsController {
 
     constructor(){}
 
-    async handle(request:Request, response:Response){
+    async handle(request:Request, response:Response):Promise<Response>{
         
         const listCarsUseCase = new ListCarUseCase();
         const cars = await listCarsUseCase.execute();
